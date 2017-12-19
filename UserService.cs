@@ -11,10 +11,13 @@ namespace Xmu.Crms.Services.Group1
     public class UserService : IUserService
     {
         private readonly CrmsContext _db;
+        private readonly ISchoolService _schoolService;
 
-        public UserService(CrmsContext db)
+        // 在构造函数里添加依赖的Service（参考模块标准组的类图）
+        public UserService(CrmsContext db, ISchoolService schoolService)
         {
             _db = db;
+            _schoolService = schoolService;
         }
 
         public bool InsertAttendanceById(long classId, long seminarId, long userId, double longitude, double latitude)
@@ -34,7 +37,7 @@ namespace Xmu.Crms.Services.Group1
             {
                 throw new UserNotFoundException();
             }
-            if (PasswordUtils.IsExpectedPassword(user.Password, PasswordUtils.ReadHashString(us.Password)))
+            if (user.Password != us.Password) // 千万不要真的用明文存储密码！
             {
                 throw new PasswordErrorException();
             }
@@ -53,11 +56,15 @@ namespace Xmu.Crms.Services.Group1
 
         public UserInfo GetUserByUserId(long id)
         {
+            // 调用Entity framework
             var user = _db.UserInfos.Include(u => u.School).SingleOrDefault(u => u.Id == id);
             if (user == null)
             {
                 throw new UserNotFoundException();
             }
+
+            // 调用依赖的 Serivce
+            _schoolService.GetSchoolBySchoolId(user.School.Id);
             return user;
         }
 
