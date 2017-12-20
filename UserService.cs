@@ -32,7 +32,7 @@ namespace Xmu.Crms.Services.Group1
 
         public UserInfo SignUpPhone(UserInfo user)
         {
-            var us = _db.UserInfos.SingleOrDefault(u => u.Phone == user.Phone);
+            var us = _db.UserInfo.SingleOrDefault(u => u.Phone == user.Phone);
             if (us == null)
             {
                 throw new UserNotFoundException();
@@ -57,7 +57,7 @@ namespace Xmu.Crms.Services.Group1
         public UserInfo GetUserByUserId(long id)
         {
             // 调用Entity framework
-            var user = _db.UserInfos.Include(u => u.School).SingleOrDefault(u => u.Id == id);
+            var user = _db.UserInfo.Include(u => u.School).SingleOrDefault(u => u.Id == id);
             if (user == null)
             {
                 throw new UserNotFoundException();
